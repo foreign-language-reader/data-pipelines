@@ -13,8 +13,8 @@ from data_pipelines.definition.versions import DictionaryVersion
 
 CEDICT_URL = "https://www.mdbg.net/chinese/dictionary?page=cedict"
 CEDICT_BASE_URL = "https://www.mdbg.net"
-VERSION_REGEX = "Latest release: <strong>(.*)<\/strong>"
-ENTRIES_REGEX = "Number of entries: <strong>(.*)<\/strong>"
+VERSION_REGEX = "Latest release: <strong>(.*)</strong>"
+ENTRIES_REGEX = "Number of entries: <strong>(.*)</strong>"
 URL_REGEX = ".*/cedict_1_0_ts_utf-8_mdbg.zip"
 
 
@@ -24,19 +24,21 @@ def get_version():
 
     logger.info("Checking CEDICT page")
     response = requests.get(CEDICT_URL)
-    page = BeautifulSoup(response.text, 'html.parser')
+    page = BeautifulSoup(response.text, "html.parser")
     logger.info("Checked CEDICT page")
 
     version = get_match_or_none(response.text, VERSION_REGEX)
     entries = get_match_or_none(response.text, ENTRIES_REGEX)
 
-    links = page.findAll('a', href=re.compile(URL_REGEX))
+    links = page.findAll("a", href=re.compile(URL_REGEX))
     link = ""
     if len(links) > 0:
         relative_link = links[0].get("href")
         link = urljoin(CEDICT_BASE_URL, relative_link)
 
-    logger.info("Found cedict version %s with %s entries at %s" % (version, entries, link))
+    logger.info(
+        "Found cedict version %s with %s entries at %s" % (version, entries, link)
+    )
 
     return DictionaryVersion(version, link, entries)
 
@@ -49,13 +51,17 @@ def move_dataset_to_s3(version):
     with open(filename, "wb") as output:
         output.write(response.content)
 
-    with zipfile.ZipFile(filename, 'r') as zip_ref:
+    with zipfile.ZipFile(filename, "r") as zip_ref:
         zip_ref.extractall(".")
 
-    s3_client = boto3.client('s3')
+    s3_client = boto3.client("s3")
 
     try:
-        response = s3_client.upload_file(filename, "foreign-language-reader-content", "definitions/cedict/cedict_ts.u8")
+        response = s3_client.upload_file(
+            filename,
+            "foreign-language-reader-content",
+            "definitions/cedict/cedict_ts.u8",
+        )
     except ClientError as e:
         print(e)
 
