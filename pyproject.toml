@@ -5,7 +5,7 @@ description = ""
 authors = ["Lucas Kjaero <lucas@lucaskjaero.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.8"
 prefect = "^0.14.3"
 requests = "^2.25.1"
 boto3 = "^1.16.54"
