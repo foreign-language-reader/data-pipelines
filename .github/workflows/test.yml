@@ -3,14 +3,6 @@ name: Test pipelines
 on: [pull_request]
 
 jobs:
-  add-label:
-    name: Add patch label to pull request
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/labeler@v3
-      with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
-
   test:
     runs-on: ubuntu-latest
 
